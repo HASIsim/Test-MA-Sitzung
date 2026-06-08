@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4net KI-Heatmap · Mai 2026 · KI-Puls</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cyan:#0AAFD6; --cyan-deep:#0A8FB8; --green:#39C24B; --green-deep:#21A33A;
+    --navy:#0E2A43; --ink:#1B2C38; --muted:#65737E; --line:#E4ECEF;
+    --bg:#F6FAFB; --card:#FFFFFF; --teal:#0C7295; --teal-hi:#0AAFD6;
+    --dark:#0C1418; --dark-2:#10202B;
+    --ph-explore:#E8742C; --ph-standard:#E5A21E; --ph-integrate:#2E86C8; --ph-transform:#1FA463;
+    --grad:linear-gradient(120deg,#0AAFD6 0%,#1FB6C0 38%,#39C24B 100%);
+    --grad-soft:linear-gradient(120deg,rgba(10,175,214,.10),rgba(57,194,75,.10));
+    --shadow-sm:0 1px 2px rgba(14,42,67,.05),0 2px 8px rgba(14,42,67,.05);
+    --shadow-md:0 4px 14px rgba(14,42,67,.08),0 12px 40px rgba(14,42,67,.07);
+    --font-d:"Bricolage Grotesque",system-ui,sans-serif;
+    --font-b:"Newsreader",Georgia,serif;
+    --maxw:1160px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--font-b); color:var(--ink); background:var(--bg);
+    -webkit-font-smoothing:antialiased; line-height:1.55; overflow-x:hidden;
+  }
+  ::selection{background:rgba(57,194,75,.25)}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+
+  /* ---------- progress + nav ---------- */
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:60;
+    background:var(--grad);transition:width .1s linear}
+  nav{position:fixed;top:0;left:0;right:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 28px;backdrop-filter:blur(12px);
+    background:rgba(246,250,251,0);border-bottom:1px solid transparent;
+    transform:translateY(-100%);transition:transform .45s cubic-bezier(.2,.8,.2,1),background .3s,border-color .3s}
+  nav.show{transform:translateY(0);background:rgba(246,250,251,.82);border-bottom:1px solid var(--line)}
+  .brand{font-family:var(--font-d);font-weight:800;font-size:18px;color:var(--navy);
+    display:flex;align-items:center;gap:8px;letter-spacing:-.01em}
+  .brand .dia{width:12px;height:12px;background:var(--grad);transform:rotate(45deg);border-radius:2px}
+  .brand em{font-style:italic;font-weight:700;color:var(--teal)}
+  .navlinks{display:flex;gap:4px;flex-wrap:wrap}
+  .navlinks a{font-family:var(--font-d);font-size:13px;font-weight:500;color:var(--muted);
+    padding:7px 12px;border-radius:99px;transition:color .2s,background .2s}
+  .navlinks a:hover{color:var(--navy);background:var(--grad-soft)}
+  @media(max-width:860px){.navlinks{display:none}}
+
+  /* ---------- hero ---------- */
+  header.hero{position:relative;min-height:100vh;display:flex;align-items:center;
+    background:var(--grad);overflow:hidden;color:#fff}
+  .hero .mesh{position:absolute;inset:-20%;opacity:.55;mix-blend-mode:screen;
+    background:
+      radial-gradient(40% 50% at 18% 28%,rgba(255,255,255,.55),transparent 70%),
+      radial-gradient(45% 55% at 82% 72%,rgba(13,80,120,.5),transparent 70%),
+      radial-gradient(35% 45% at 70% 18%,rgba(57,194,75,.55),transparent 70%);
+    animation:float 18s ease-in-out infinite alternate}
+  @keyframes float{from{transform:translate3d(-2%,-2%,0) scale(1.02)}to{transform:translate3d(3%,2%,0) scale(1.08)}}
+  .hero .grain{position:absolute;inset:0;opacity:.06;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .hero .wrap{position:relative;z-index:2;width:100%;padding-top:90px;padding-bottom:60px}
+  .eyebrow{font-family:var(--font-d);font-weight:600;font-size:14px;letter-spacing:.22em;
+    text-transform:uppercase;color:rgba(255,255,255,.9);margin-bottom:18px}
+  .hero h1{font-family:var(--font-d);font-weight:800;font-style:italic;
+    font-size:clamp(64px,12vw,150px);line-height:.86;letter-spacing:-.03em;
+    text-shadow:0 8px 40px rgba(8,40,60,.25)}
+  .hero .sub{font-family:var(--font-d);font-weight:600;font-style:italic;
+    font-size:clamp(22px,3.4vw,38px);margin-top:10px;color:#fff}
+  .hero .period{font-family:var(--font-b);font-size:clamp(17px,2vw,21px);
+    margin-top:26px;color:#EAFFFB;max-width:720px}
+  .hero .metaline{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:22px;
+    font-family:var(--font-d);font-size:14px;font-weight:500;color:rgba(255,255,255,.95)}
+  .hero .metaline span{display:flex;align-items:center;gap:8px}
+  .hero .metaline span::before{content:"";width:7px;height:7px;background:#fff;
+    transform:rotate(45deg);border-radius:1px;opacity:.85}
+  .hero .signoff{margin-top:40px;font-family:var(--font-d);font-weight:700;font-size:16px;
+    display:flex;align-items:center;gap:9px}
+  .hero .signoff .dia{width:11px;height:11px;background:#fff;transform:rotate(45deg);border-radius:2px}
+  .scrollcue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:3;
+    font-family:var(--font-d);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:rgba(255,255,255,.85);display:flex;flex-direction:column;align-items:center;gap:8px}
+  .scrollcue .bar{width:1px;height:34px;background:rgba(255,255,255,.7);
+    animation:cue 1.8s ease-in-out infinite}
+  @keyframes cue{0%,100%{opacity:.3;transform:scaleY(.5);transform-origin:top}50%{opacity:1;transform:scaleY(1)}}
+
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  [data-d="1"]{transition-delay:.06s}[data-d="2"]{transition-delay:.12s}
+  [data-d="3"]{transition-delay:.18s}[data-d="4"]{transition-delay:.24s}
+
+  /* ---------- stats ---------- */
+  .stats{background:var(--navy);color:#fff;padding:36px 0}
+  .stats .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .stat{padding:8px 20px;border-left:1px solid rgba(255,255,255,.14)}
+  .stat:first-child{border-left:none}
+  .stat .n{font-family:var(--font-d);font-weight:800;font-size:clamp(32px,4vw,46px);
+    line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat .l{font-family:var(--font-d);font-size:13px;font-weight:500;color:rgba(255,255,255,.72);margin-top:8px}
+  @media(max-width:720px){.stats .grid{grid-template-columns:repeat(2,1fr);gap:18px 8px}}
+
+  /* ---------- section band (divider) ---------- */
+  .band{position:relative;background:var(--grad);color:#fff;padding:64px 0;overflow:hidden}
+  .band .grain{position:absolute;inset:0;opacity:.07;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .band .k{font-family:var(--font-d);font-weight:600;font-style:italic;font-size:22px;color:#EAFFFB}
+  .band h2{font-family:var(--font-d);font-weight:800;font-style:italic;
+    font-size:clamp(40px,6vw,68px);line-height:.95;letter-spacing:-.02em;margin-top:4px}
+  .band .wrap{position:relative;z-index:2}
+
+  /* ---------- rubric sections ---------- */
+  section.block{padding:64px 0}
+  .rubhead{display:flex;align-items:baseline;gap:16px;margin-bottom:30px;flex-wrap:wrap}
+  .rubhead h3{font-family:var(--font-d);font-weight:800;font-size:clamp(28px,4vw,40px);
+    color:var(--navy);letter-spacing:-.02em}
+  .rubhead .tally{font-family:var(--font-d);font-weight:600;font-size:13px;color:var(--muted);
+    border:1px solid var(--line);border-radius:99px;padding:4px 12px}
+  .rubhead .rule{flex:1;height:1px;background:var(--line);min-width:30px}
+
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  @media(max-width:760px){.cards{grid-template-columns:1fr}}
+  .card{position:relative;display:block;background:var(--card);border:1px solid var(--line);
+    border-radius:16px;padding:26px 26px 24px;box-shadow:var(--shadow-sm);
+    transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s,border-color .35s;overflow:hidden}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;
+    background:var(--grad);transform:scaleY(0);transform-origin:top;transition:transform .4s ease}
+  .card:hover{transform:translateY(-5px);box-shadow:var(--shadow-md);border-color:transparent}
+  .card:hover::before{transform:scaleY(1)}
+  .card .tags{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .tag{font-family:var(--font-d);font-weight:600;font-size:11px;letter-spacing:.04em;
+    text-transform:uppercase;padding:4px 9px;border-radius:6px;background:var(--grad-soft);color:var(--teal)}
+  .tag.src{background:#F1F5F7;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:500}
+  .card h4{font-family:var(--font-d);font-weight:700;font-size:19px;line-height:1.28;
+    color:var(--navy);letter-spacing:-.01em;margin-bottom:10px;padding-right:20px}
+  .card:hover h4{color:var(--teal)}
+  .card p{font-family:var(--font-b);font-size:16.5px;line-height:1.5;color:var(--ink)}
+  .card .go{position:absolute;top:24px;right:22px;width:22px;height:22px;color:var(--muted);
+    transition:transform .35s,color .35s;opacity:.55}
+  .card:hover .go{transform:translate(3px,-3px);color:var(--teal);opacity:1}
+  .note{margin-top:22px;font-family:var(--font-b);font-style:italic;font-size:16px;
+    color:var(--muted);padding-left:16px;border-left:3px solid var(--line)}
+
+  /* ---------- framework ---------- */
+  .fw{background:var(--dark);color:#fff;padding:72px 0 64px;position:relative}
+  .fw h2{font-family:var(--font-d);font-weight:800;font-size:clamp(32px,5vw,52px);
+    letter-spacing:-.02em;margin-bottom:8px}
+  .fw .lead{font-family:var(--font-b);font-size:18px;color:rgba(255,255,255,.72);max-width:680px;margin-bottom:44px}
+  .stair{position:relative;display:grid;grid-template-columns:auto 1fr;gap:18px;margin-bottom:18px}
+  .yaxis{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--font-d);
+    font-weight:600;font-size:13px;letter-spacing:.16em;text-transform:uppercase;
+    color:rgba(255,255,255,.5);align-self:center;padding:20px 0}
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-items:end;min-height:430px}
+  @media(max-width:760px){.steps{grid-template-columns:1fr;align-items:stretch}.yaxis{display:none}.stair{grid-template-columns:1fr}}
+  .step{border-radius:14px 14px 0 0;padding:20px 18px;color:#fff;position:relative;
+    transform-origin:bottom;transform:scaleY(.04);opacity:0;
+    transition:transform .8s cubic-bezier(.2,.8,.2,1),opacity .5s}
+  .steps.in .step{transform:scaleY(1);opacity:1}
+  .steps.in .step:nth-child(1){transition-delay:.05s}
+  .steps.in .step:nth-child(2){transition-delay:.18s}
+  .steps.in .step:nth-child(3){transition-delay:.31s}
+  .steps.in .step:nth-child(4){transition-delay:.44s}
+  .step:hover{filter:brightness(1.07)}
+  .step .ph{font-family:var(--font-d);font-weight:800;font-size:19px;margin-bottom:12px;letter-spacing:-.01em}
+  .step ul{list-style:none}
+  .step li{font-family:var(--font-d);font-weight:400;font-size:13.5px;line-height:1.35;
+    padding-left:16px;position:relative;margin-bottom:8px;color:rgba(255,255,255,.94)}
+  .step li::before{content:"→";position:absolute;left:0;opacity:.7}
+  .s1{background:var(--ph-explore);height:46%}
+  .s2{background:var(--ph-standard);height:62%}
+  .s3{background:var(--ph-integrate);height:80%}
+  .s4{background:var(--ph-transform);height:100%}
+  .s4 .ph::after{content:" ∞";opacity:.8}
+  .xaxis{font-family:var(--font-d);font-weight:600;font-size:13px;letter-spacing:.16em;
+    text-transform:uppercase;color:rgba(255,255,255,.5);text-align:center;margin-left:38px}
+  @media(max-width:760px){.xaxis{margin-left:0}}
+  .fw .mapping{margin-top:46px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
+    border-radius:16px;padding:26px 28px}
+  .fw .mapping .lbl{font-family:var(--font-d);font-weight:700;font-size:13px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--green);margin-bottom:14px}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+  .flow .f{font-family:var(--font-d);font-weight:500;font-size:15px;color:#fff;
+    background:rgba(255,255,255,.07);border-radius:10px;padding:10px 15px;line-height:1.3}
+  .flow .arr{color:var(--green);font-weight:800;font-size:18px}
+  .fw .qsrc{margin-top:22px;font-family:var(--font-d);font-size:12px;color:rgba(255,255,255,.4)}
+
+  /* ---------- ausblick ---------- */
+  .out{padding:70px 0}
+  .out h2{font-family:var(--font-d);font-weight:800;font-size:clamp(30px,4.5vw,44px);
+    color:var(--navy);letter-spacing:-.02em;margin-bottom:34px}
+  .ocols{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:820px){.ocols{grid-template-columns:1fr}}
+  .ocol{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:26px 24px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+  .ocol::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--grad)}
+  .ocol h5{font-family:var(--font-d);font-weight:800;font-size:19px;color:var(--navy);margin-bottom:16px}
+  .ocol ul{list-style:none}
+  .ocol li{font-family:var(--font-b);font-size:16px;line-height:1.45;padding-left:18px;
+    position:relative;margin-bottom:13px;color:var(--ink)}
+  .ocol li::before{content:"–";position:absolute;left:0;color:var(--teal-hi);font-weight:700}
+  .open{margin-top:26px;background:var(--grad-soft);border-radius:14px;padding:20px 24px;
+    font-family:var(--font-b);font-size:17px;color:var(--navy)}
+  .open b{font-family:var(--font-d);font-weight:700}
+
+  /* ---------- sources ---------- */
+  .src{background:var(--navy);color:#fff;padding:66px 0}
+  .src h2{font-family:var(--font-d);font-weight:800;font-size:clamp(28px,4vw,40px);
+    letter-spacing:-.02em;margin-bottom:8px}
+  .src .lead{font-family:var(--font-b);font-size:16px;color:rgba(255,255,255,.6);margin-bottom:36px}
+  .sgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 44px}
+  @media(max-width:760px){.sgrid{grid-template-columns:1fr}}
+  .sblock{padding:18px 0;border-top:1px solid rgba(255,255,255,.13)}
+  .sblock h6{font-family:var(--font-d);font-weight:700;font-size:14px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--green);margin-bottom:12px}
+  .sblock a{display:block;font-family:var(--font-d);font-size:15px;font-weight:500;
+    color:rgba(255,255,255,.88);padding:6px 0 6px 18px;position:relative;
+    transition:color .2s,padding .2s}
+  .sblock a::before{content:"→";position:absolute;left:0;color:rgba(255,255,255,.4);transition:color .2s,transform .2s}
+  .sblock a:hover{color:#fff;padding-left:24px}
+  .sblock a:hover::before{color:var(--green);transform:translateX(2px)}
+
+  /* ---------- footer ---------- */
+  footer.foot{background:var(--dark);color:rgba(255,255,255,.7);padding:50px 0 44px}
+  .foot .top{height:4px;background:var(--grad);margin-bottom:40px}
+  .foot .row{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:22px}
+  .foot .bmark{font-family:var(--font-d);font-weight:800;font-size:24px;color:#fff;
+    display:flex;align-items:center;gap:10px}
+  .foot .bmark .dia{width:13px;height:13px;background:var(--grad);transform:rotate(45deg);border-radius:2px}
+  .foot .bmark em{font-style:italic;color:var(--cyan)}
+  .foot .meta{font-family:var(--font-d);font-size:13px;line-height:1.7;text-align:right}
+  @media(max-width:620px){.foot .row{flex-direction:column;align-items:flex-start}.foot .meta{text-align:left}}
+  .foot .disc{font-family:var(--font-b);font-size:13px;font-style:italic;color:rgba(255,255,255,.4);margin-top:30px}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav id="nav">
+  <a class="brand" href="#top">4net <span class="dia"></span> <em>KI-Puls</em></a>
+  <div class="navlinks">
+    <a href="#copilot">Copilot</a>
+    <a href="#openai">OpenAI</a>
+    <a href="#google">Google</a>
+    <a href="#anthropic">Anthropic</a>
+    <a href="#meta">Meta</a>
+    <a href="#allgemein">Allgemein</a>
+    <a href="#framework">KI-Framework</a>
+    <a href="#ausblick">Ausblick</a>
+    <a href="#quellen">Quellen</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="top">
+  <div class="mesh"></div>
+  <div class="grain"></div>
+  <div class="wrap">
+    <div class="eyebrow reveal in">Monatsausgabe · St. Gallen</div>
+    <h1 class="reveal in" data-d="1">KI-Puls</h1>
+    <div class="sub reveal in" data-d="2">4net KI-Heatmap</div>
+    <p class="period reveal in" data-d="3">Verdichtete Monatsübersicht der relevantesten KI-Entwicklungen für Microsoft 365, Modern Workplace, Security &amp; Governance.</p>
+    <div class="metaline reveal in" data-d="3">
+      <span>Periode 01.05.2026 – 31.05.2026</span>
+      <span>Redaktioneller Cut-off 31.05.2026</span>
+    </div>
+    <div class="signoff reveal in" data-d="4"><span class="dia"></span> 4net AG · St. Gallen · Data, AI &amp; Collaboration</div>
+  </div>
+  <div class="scrollcue"><span>Scrollen</span><span class="bar"></span></div>
+</header>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="wrap">
+    <div class="grid">
+      <div class="stat reveal" data-d="1"><div class="n">19</div><div class="l">kuratierte Meldungen</div></div>
+      <div class="stat reveal" data-d="2"><div class="n">6</div><div class="l">News-Rubriken</div></div>
+      <div class="stat reveal" data-d="3"><div class="n">4</div><div class="l">Reifegrad-Phasen</div></div>
+      <div class="stat reveal" data-d="4"><div class="n">Mai</div><div class="l">Berichtsmonat 2026</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- BAND: Copilot -->
+<section class="band">
+  <div class="grain"></div>
+  <div class="wrap">
+    <div class="k reveal">Update</div>
+    <h2 class="reveal" data-d="1">Microsoft Copilot</h2>
+  </div>
+</section>
+
+<section class="block" id="copilot">
+  <div class="wrap">
+    <div class="rubhead reveal">
+      <h3>Microsoft Copilot</h3><span class="tally">4 Meldungen</span><span class="rule"></span>
+    </div>
+    <div class="cards">
+      <a class="card reveal" data-d="1" href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%e2%80%99s-new-in-microsoft-365-copilot--may-2026/4522010" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Microsoft Copilot</span><span class="tag src">M365 Copilot Blog</span></div>
+        <h4>Erweiterte Modellauswahl in Microsoft 365 Copilot mit GPT-5.5 und Claude Opus 4.8</h4>
+        <p>Mehr Modellauswahl pro Aufgabe; mit Work IQ bleiben die Antworten an den eigenen Organisationsdaten verankert.</p>
+      </a>
+      <a class="card reveal" data-d="2" href="https://www.microsoft.com/en-us/microsoft-copilot/blog/copilot-studio/new-and-improved-computer-using-agents-a-new-workflows-experience-and-real-time-voice-experiences/" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Microsoft Copilot</span><span class="tag src">Microsoft Copilot Blog</span></div>
+        <h4>Copilot Studio: Computer-using Agents allgemein verfügbar, neue Workflows und Echtzeit-Voice</h4>
+        <p>Agentische Automatisierung auf einer Oberfläche ermöglicht durchgängige Prozesse statt isolierter Einzelschritte im Modern Workplace.</p>
+      </a>
+      <a class="card reveal" data-d="1" href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%e2%80%99s-new-in-microsoft-365-copilot--may-2026/4522010" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Microsoft Copilot</span><span class="tag src">M365 Copilot Blog</span></div>
+        <h4>Föderierte Connectors und ausgebaute DLP-Governance für Copilot-Prompts</h4>
+        <p>Externe Wissensquellen anbinden und Prompts über Datenschutzrichtlinien kontrollieren – zentral für Governance und Compliance.</p>
+      </a>
+      <a class="card reveal" data-d="2" href="https://learn.microsoft.com/en-us/partner-center/announcements/2026-may" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Microsoft Copilot</span><span class="tag src">Microsoft Learn · Partner Center</span></div>
+        <h4>Microsoft 365 Copilot neu mit Drei-Jahres-Beschaffung im CSP</h4>
+        <p>Längerfristige Lizenzplanung analog zu E3/E5 – relevant für Budgetierung und Rollout-Planung bei Schweizer Kunden.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- BAND: KI allgemein -->
+<section class="band">
+  <div class="grain"></div>
+  <div class="wrap">
+    <div class="k reveal">KI-Update</div>
+    <h2 class="reveal" data-d="1">KI allgemein</h2>
+  </div>
+</section>
+
+<!-- OpenAI -->
+<section class="block" id="openai">
+  <div class="wrap">
+    <div class="rubhead reveal"><h3>OpenAI</h3><span class="tally">3 Meldungen</span><span class="rule"></span></div>
+    <div class="cards">
+      <a class="card reveal" data-d="1" href="https://openai.com/index/chatgpt-for-excel/" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">OpenAI</span><span class="tag src">OpenAI</span></div>
+        <h4>ChatGPT for Excel und Google Sheets sind allgemein verfügbar</h4>
+        <p>KI direkt in der Tabelle baut und erklärt Modelle; tritt in Konkurrenz zu Copilot in Excel (EU-Zugang teils eingeschränkt).</p>
+      </a>
+      <a class="card reveal" data-d="2" href="https://openai.com/index/gpt-5-5-instant/" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">OpenAI</span><span class="tag src">OpenAI</span></div>
+        <h4>GPT-5.5 Instant wird neues ChatGPT-Standardmodell mit höherer Faktentreue</h4>
+        <p>52,5 % weniger Halluzinationen bei kritischen Themen wie Medizin, Recht und Finanzen – relevant für Verlässlichkeit im Arbeitsalltag.</p>
+      </a>
+      <a class="card reveal" data-d="1" href="https://openai.com/index/advancing-voice-intelligence-with-new-models-in-the-api/" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">OpenAI</span><span class="tag src">OpenAI</span></div>
+        <h4>Neue Echtzeit-Sprachmodelle in der OpenAI-API für Voice-Agents</h4>
+        <p>Reasoning, Live-Übersetzung (70+ Sprachen) und Streaming-Transkription ermöglichen natürlichere Sprachanwendungen in Support und Meetings.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Google -->
+<section class="block" id="google" style="padding-top:0">
+  <div class="wrap">
+    <div class="rubhead reveal"><h3>Google</h3><span class="tally">3 Meldungen</span><span class="rule"></span></div>
+    <div class="cards">
+      <a class="card reveal" data-d="1" href="https://blog.google/innovation-and-ai/technology/ai/google-io-2026-all-our-announcements/" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Google</span><span class="tag src">Google Blog</span></div>
+        <h4>Google I/O 2026: Gemini 3.5 Flash kombiniert Frontier-Intelligenz mit Aktion</h4>
+        <p>Schnelles, kostengünstiges Agenten-Modell, breit verfügbar – verschärft den Wettbewerb bei produktiven KI-Assistenten.</p>
+      </a>
+      <a class="card reveal" data-d="2" href="https://cloud.google.com/blog/products/ai-machine-learning/innovations-from-google-io-26-on-google-cloud" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Google</span><span class="tag src">Google Cloud Blog</span></div>
+        <h4>Gemini Enterprise orchestriert mehrere Agenten über Workspace und Drittsysteme</h4>
+        <p>Agentische Workspace-Umgebung als direkte Alternative zu Microsoft 365 – relevant für Collaboration-Strategie und Plattformwahl.</p>
+      </a>
+      <a class="card reveal" data-d="1" href="https://cloud.google.com/blog/products/ai-machine-learning/innovations-from-google-io-26-on-google-cloud" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Google</span><span class="tag src">Google Cloud Blog</span></div>
+        <h4>Antigravity 2.0 mit Enterprise-Security über die Agent Platform</h4>
+        <p>Agenten laufen in der eigenen Cloud-Grenze mit Google-Cloud-Datenschutz – ein Governance-Pluspunkt für regulierte Umgebungen.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Anthropic -->
+<section class="block" id="anthropic" style="padding-top:0">
+  <div class="wrap">
+    <div class="rubhead reveal"><h3>Anthropic</h3><span class="tally">4 Meldungen</span><span class="rule"></span></div>
+    <div class="cards">
+      <a class="card reveal" data-d="1" href="https://www.securityweek.com/anthropic-expands-claudes-enterprise-security-reach-with-28-new-integrations/" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Anthropic</span><span class="tag src">SecurityWeek · Einordnung</span></div>
+        <h4>Claude Compliance API verbindet Claude mit 28 Security- und Compliance-Plattformen</h4>
+        <p>DLP, SIEM, Identity und Microsoft Purview steuern Claude wie jede andere Anwendung – ein starker Governance-Hebel für den Enterprise-Einsatz.</p>
+      </a>
+      <a class="card reveal" data-d="2" href="https://www.anthropic.com/news/claude-opus-4-8" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Anthropic</span><span class="tag src">Anthropic News</span></div>
+        <h4>Claude Opus 4.8 verbessert Verlässlichkeit, Ehrlichkeit und agentische Ausführung</h4>
+        <p>Das neue Flaggschiff meldet Unsicherheiten häufiger und lässt Code-Fehler seltener durch – relevant für vertrauenswürdige Automatisierung.</p>
+      </a>
+      <a class="card reveal" data-d="1" href="https://www.anthropic.com/news/claude-for-small-business" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Anthropic</span><span class="tag src">Anthropic News</span></div>
+        <h4>Claude for Small Business bringt KI in die Tools von KMU</h4>
+        <p>Vorkonfigurierte Workflows für Microsoft 365, Google Workspace, QuickBooks und weitere – direkt relevant für Schweizer KMU.</p>
+      </a>
+      <a class="card reveal" data-d="2" href="https://www.anthropic.com/news/anthropic-kpmg" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Anthropic</span><span class="tag src">Anthropic News</span></div>
+        <h4>KPMG bringt Claude global zu über 276'000 Mitarbeitenden</h4>
+        <p>Breite Einführung in Audit, Tax und Legal – ein deutliches Adoptionssignal aus den professionellen Dienstleistungen.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Meta -->
+<section class="block" id="meta" style="padding-top:0">
+  <div class="wrap">
+    <div class="rubhead reveal"><h3>Meta</h3><span class="tally">2 Meldungen</span><span class="rule"></span></div>
+    <div class="cards">
+      <a class="card reveal" data-d="1" href="https://thenextweb.com/news/meta-muse-spark-api-delay" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Meta</span><span class="tag src">The Next Web · Einordnung</span></div>
+        <h4>Meta verschiebt die Entwickler-API für Muse Spark erneut</h4>
+        <p>Das Modell ist verfügbar, der Plattformzugang fehlt weiter – das verzögert die produktive Nutzung und wirft Fragen zur Plattformreife auf.</p>
+      </a>
+      <a class="card reveal" data-d="2" href="https://ai.meta.com/" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Meta</span><span class="tag src">AI at Meta</span></div>
+        <h4>Meta kündigt «Contemplating»-Modus für Muse Spark an</h4>
+        <p>Mehrere Agenten denken parallel für schwierige Aufgaben; die Ausrollung erfolgt schrittweise, die Enterprise-Relevanz ist aktuell gering.</p>
+      </a>
+    </div>
+    <p class="note reveal">Einordnung: Meta bleibt im Mai konsumnah; der direkte Enterprise- und Modern-Workplace-Nutzen für 4net ist derzeit begrenzt.</p>
+  </div>
+</section>
+
+<!-- Allgemein -->
+<section class="block" id="allgemein" style="padding-top:0">
+  <div class="wrap">
+    <div class="rubhead reveal"><h3>Allgemein</h3><span class="tally">3 Meldungen</span><span class="rule"></span></div>
+    <div class="cards">
+      <a class="card reveal" data-d="1" href="https://www.consilium.europa.eu/en/press/press-releases/2026/05/07/artificial-intelligence-council-and-parliament-agree-to-simplify-and-streamline-rules/" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Allgemein</span><span class="tag src">Rat der EU · Consilium</span></div>
+        <h4>EU AI Act: politische Einigung auf den «Digital Omnibus» mit Fristverlängerungen</h4>
+        <p>Hochrisiko-Pflichten werden verschoben, Regeln vereinfacht und neue Verbote ergänzt – wichtig für die EU- und Schweizer Compliance-Planung.</p>
+      </a>
+      <a class="card reveal" data-d="2" href="https://www.netzwoche.ch/news/2026-05-22/swissai-fordert-verankerung-digitaler-souveraenitaet-in-der-oeffentlichen" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Allgemein</span><span class="tag src">Netzwoche</span></div>
+        <h4>SwissAI fordert digitale Souveränität in der öffentlichen Beschaffung</h4>
+        <p>Der Verband warnt vor Abhängigkeit bei KI und Cloud und verlangt verbindliche Souveränitätskriterien – ein zentrales Thema für die Schweiz.</p>
+      </a>
+      <a class="card reveal" data-d="1" href="https://group.softbank/en/news/press/20260531_0" target="_blank" rel="noopener">
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        <div class="tags"><span class="tag">Allgemein</span><span class="tag src">SoftBank Group</span></div>
+        <h4>SoftBank investiert bis zu 75 Mrd. Euro in KI-Rechenzentren in Frankreich</h4>
+        <p>5 GW Kapazität stärken Europas KI-Infrastruktur und Souveränität – ein relevanter Marktindikator für die Datenstandort-Debatte.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FRAMEWORK -->
+<section class="fw" id="framework">
+  <div class="wrap">
+    <h2 class="reveal">KI-Framework</h2>
+    <p class="lead reveal" data-d="1">Die Monatsthemen entlang der Reifegrad-Treppe eingeordnet – von ersten Experimenten bis zur AI-first-Transformation.</p>
+    <div class="stair">
+      <div class="yaxis">Wertschöpfung</div>
+      <div class="steps" id="steps">
+        <div class="step s1">
+          <div class="ph">Erkundung</div>
+          <ul><li>Erste, unstrukturierte Nutzung &amp; Experimente</li><li>Fokus auf Lernen und Ausprobieren</li><li>Gemeinsames Grundverständnis fehlt noch</li></ul>
+        </div>
+        <div class="step s2">
+          <div class="ph">Standardisierung</div>
+          <ul><li>Zentrale Plattformen &amp; Standards</li><li>Breite Mitarbeiterbefähigung</li><li>KI-Botschafter-Community</li><li>Erste Produktivitätssteigerung</li></ul>
+        </div>
+        <div class="step s3">
+          <div class="ph">Integration</div>
+          <ul><li>Einbettung in Kernprozesse</li><li>Vertikale Integration in Abläufe</li><li>Spezialisiertes, tiefes Wissen</li><li>Hohe Messbarkeit der Effizienz</li></ul>
+        </div>
+        <div class="step s4">
+          <div class="ph">Transformation</div>
+          <ul><li>KI als strategischer Kernbestandteil</li><li>Neue Produkte &amp; Geschäftsmodelle</li><li>AI-first-Kultur etabliert sich</li><li>Kontinuierliches Lernen</li></ul>
+        </div>
+      </div>
+    </div>
+    <div class="xaxis">Zeit</div>
+    <div class="mapping reveal">
+      <div class="lbl">Einordnung Mai 2026</div>
+      <div class="flow">
+        <span class="f">Modellvielfalt testen<br>GPT-5.5, Opus 4.8, Gemini 3.5</span>
+        <span class="arr">→</span>
+        <span class="f">Governance standardisieren<br>DLP, Claude Compliance API, EU AI Act</span>
+        <span class="arr">→</span>
+        <span class="f">Agentische Prozesse integrieren<br>Copilot Studio, Gemini Enterprise, ChatGPT for Excel</span>
+        <span class="arr">→</span>
+        <span class="f">Datensouveräne KI-Strategie<br>Schweiz / EU</span>
+      </div>
+    </div>
+    <div class="qsrc">Darstellungslogik in Anlehnung an ai-first.ai</div>
+  </div>
+</section>
+
+<!-- AUSBLICK -->
+<section class="out" id="ausblick">
+  <div class="wrap">
+    <h2 class="reveal">Diskussion &amp; Ausblick</h2>
+    <div class="ocols">
+      <div class="ocol reveal" data-d="1">
+        <h5>Beobachten</h5>
+        <ul><li>Mythos-Klasse-Modelle (in den kommenden Wochen)</li><li>Meta Muse Spark Entwickler-API</li><li>Gemini Spark &amp; Workspace «Live» (GA offen)</li></ul>
+      </div>
+      <div class="ocol reveal" data-d="2">
+        <h5>Vertiefen &amp; Prüfen</h5>
+        <ul><li>Modell-Governance bei Multi-Modell-Copilot (GPT-5.5 + Opus 4.8)</li><li>Anbindung von DLP- und Compliance-APIs</li><li>EU-AI-Act-Fristen (Annex III neu Dez. 2027)</li><li>CH-Souveränität in der Beschaffung</li></ul>
+      </div>
+      <div class="ocol reveal" data-d="3">
+        <h5>Nächste Periode</h5>
+        <ul><li>Microsoft Build 2026 (Anfang Juni): Microsoft IQ, Scout, Frontier Tuning – wird in der Juni-Heatmap behandelt</li></ul>
+      </div>
+    </div>
+    <div class="open reveal"><b>Offene Punkte:</b>&nbsp; Nächster Termin für die KI-Heatmap?&nbsp; ·&nbsp; Pilotthema für 4net-Kunden auswählen?</div>
+  </div>
+</section>
+
+<!-- QUELLEN -->
+<section class="src" id="quellen">
+  <div class="wrap">
+    <h2 class="reveal">Quellen- und Linkübersicht</h2>
+    <p class="lead reveal" data-d="1">Primärquellen bevorzugt; Einordnungs- und Sekundärquellen sind gekennzeichnet. Cut-off: 31.05.2026.</p>
+    <div class="sgrid">
+      <div class="sblock reveal">
+        <h6>Microsoft Copilot</h6>
+        <a href="https://techcommunity.microsoft.com/blog/microsoft365copilotblog/what%e2%80%99s-new-in-microsoft-365-copilot--may-2026/4522010" target="_blank" rel="noopener">What's New in M365 Copilot – Mai 2026</a>
+        <a href="https://www.microsoft.com/en-us/microsoft-copilot/blog/copilot-studio/new-and-improved-computer-using-agents-a-new-workflows-experience-and-real-time-voice-experiences/" target="_blank" rel="noopener">Copilot Studio – Mai 2026</a>
+        <a href="https://learn.microsoft.com/en-us/partner-center/announcements/2026-may" target="_blank" rel="noopener">Partner Center – Mai 2026</a>
+      </div>
+      <div class="sblock reveal" data-d="1">
+        <h6>OpenAI</h6>
+        <a href="https://openai.com/index/chatgpt-for-excel/" target="_blank" rel="noopener">ChatGPT for Excel</a>
+        <a href="https://openai.com/index/gpt-5-5-instant/" target="_blank" rel="noopener">GPT-5.5 Instant</a>
+        <a href="https://openai.com/index/advancing-voice-intelligence-with-new-models-in-the-api/" target="_blank" rel="noopener">Realtime Voice-Modelle (API)</a>
+      </div>
+      <div class="sblock reveal">
+        <h6>Google</h6>
+        <a href="https://blog.google/innovation-and-ai/technology/ai/google-io-2026-all-our-announcements/" target="_blank" rel="noopener">I/O 2026 – Ankündigungen</a>
+        <a href="https://cloud.google.com/blog/products/ai-machine-learning/innovations-from-google-io-26-on-google-cloud" target="_blank" rel="noopener">Google Cloud – I/O 2026</a>
+      </div>
+      <div class="sblock reveal" data-d="1">
+        <h6>Anthropic</h6>
+        <a href="https://www.securityweek.com/anthropic-expands-claudes-enterprise-security-reach-with-28-new-integrations/" target="_blank" rel="noopener">Claude Compliance API (Einordnung)</a>
+        <a href="https://www.anthropic.com/news/claude-opus-4-8" target="_blank" rel="noopener">Claude Opus 4.8</a>
+        <a href="https://www.anthropic.com/news/claude-for-small-business" target="_blank" rel="noopener">Claude for Small Business</a>
+        <a href="https://www.anthropic.com/news/anthropic-kpmg" target="_blank" rel="noopener">KPMG-Allianz</a>
+      </div>
+      <div class="sblock reveal">
+        <h6>Meta</h6>
+        <a href="https://thenextweb.com/news/meta-muse-spark-api-delay" target="_blank" rel="noopener">Muse Spark API-Verzögerung (Einordnung)</a>
+        <a href="https://ai.meta.com/" target="_blank" rel="noopener">AI at Meta – Muse Spark</a>
+      </div>
+      <div class="sblock reveal" data-d="1">
+        <h6>Allgemein</h6>
+        <a href="https://www.consilium.europa.eu/en/press/press-releases/2026/05/07/artificial-intelligence-council-and-parliament-agree-to-simplify-and-streamline-rules/" target="_blank" rel="noopener">EU AI Act – Digital Omnibus (Rat der EU)</a>
+        <a href="https://www.netzwoche.ch/news/2026-05-22/swissai-fordert-verankerung-digitaler-souveraenitaet-in-der-oeffentlichen" target="_blank" rel="noopener">SwissAI – Souveränität (Netzwoche)</a>
+        <a href="https://group.softbank/en/news/press/20260531_0" target="_blank" rel="noopener">SoftBank – KI-Rechenzentren Frankreich</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="foot">
+  <div class="top"></div>
+  <div class="wrap">
+    <div class="row">
+      <div class="bmark">4net <span class="dia"></span> <em>KI-Puls</em></div>
+      <div class="meta">
+        4net AG · St. Gallen<br>
+        Data, AI &amp; Collaboration<br>
+        KI-Heatmap Mai 2026 · Cut-off 31.05.2026
+      </div>
+    </div>
+    <p class="disc">Verdichtete redaktionelle Monatsübersicht. Inhalte aus offiziellen Hersteller- und kuratierten Sekundärquellen; keine Anlage-, Rechts- oder Beschaffungsberatung.</p>
+  </div>
+</footer>
+
+<script>
+  // scroll progress
+  const prog=document.getElementById('progress');
+  const nav=document.getElementById('nav');
+  function onScroll(){
+    const h=document.documentElement.scrollHeight-window.innerHeight;
+    prog.style.width=(window.scrollY/h*100)+'%';
+    if(window.scrollY>window.innerHeight*0.7){nav.classList.add('show')}else{nav.classList.remove('show')}
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+  // reveal on scroll
+  const io=new IntersectionObserver((es)=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
+  },{threshold:0.14,rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // staircase grow
+  const steps=document.getElementById('steps');
+  const sio=new IntersectionObserver((es)=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');sio.unobserve(e.target)}})
+  },{threshold:0.3});
+  sio.observe(steps);
+</script>
+</body>
+</html>
